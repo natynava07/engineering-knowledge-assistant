@@ -2,17 +2,25 @@
 
 from pathlib import Path
 
+from pypdf import PdfReader
+
+TEXT_EXTENSIONS = {".txt", ".md"}
+PDF_EXTENSION = ".pdf"
+
 
 def extract_text(path: Path) -> str:
     """Extract text from a supported file.
 
-    Requirements:
-    - Match supported extensions case-insensitively.
-    - Decode TXT and Markdown as UTF-8.
-    - Use pypdf to extract PDF pages in order and join non-empty page text.
-    - Raise ValueError for unsupported extensions.
-    - Do not silently swallow decoding or parsing errors.
-
-    TODO: implement this function.
+    TXT and Markdown files are decoded as UTF-8. PDF pages are read with pypdf
+    in order and the non-empty page texts are joined with a blank line.
+    Unsupported extensions raise ValueError. Decoding and PDF parsing errors are
+    not caught here, so the caller decides how to handle them.
     """
-    raise NotImplementedError("TODO: implement extract_text")
+    extension = path.suffix.lower()
+    if extension in TEXT_EXTENSIONS:
+        return path.read_text(encoding="utf-8")
+    if extension == PDF_EXTENSION:
+        reader = PdfReader(path)
+        pages = [page.extract_text() for page in reader.pages]
+        return "\n\n".join(text.strip() for text in pages if text and text.strip())
+    raise ValueError(f"Unsupported document type: {path.suffix or '(none)'}")
