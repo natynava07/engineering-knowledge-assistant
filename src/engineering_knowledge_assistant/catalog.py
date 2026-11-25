@@ -34,9 +34,13 @@ def discover_documents(root: Path) -> list[Path]:
     Return paths rooted at root, sorted by their relative POSIX path.
     Return an empty list when root does not exist. Raise NotADirectoryError when
     root exists but is not a directory.
-    TODO: implement this function.
     """
-    raise NotImplementedError("TODO: implement discover_documents")
+    if not root.exists():
+        return []
+    if not root.is_dir():
+        raise NotADirectoryError(f"{root} is not a directory")
+    documents = [path for path in root.rglob("*") if is_supported_document(path)]
+    return sorted(documents, key=lambda path: path.relative_to(root).as_posix())
 
 
 def describe_document(path: Path, root: Path) -> DocumentInfo:
