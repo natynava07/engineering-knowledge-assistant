@@ -68,6 +68,5 @@ def build_manifest(root: Path) -> list[DocumentInfo]:
     """Return metadata for every supported document below root.
 
     Use discover_documents and describe_document rather than duplicating logic.
-    TODO: implement this function.
     """
-    raise NotImplementedError("TODO: implement build_manifest")
+    return [describe_document(path, root) for path in discover_documents(root)]
