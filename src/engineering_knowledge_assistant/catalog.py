@@ -49,9 +49,19 @@ def describe_document(path: Path, root: Path) -> DocumentInfo:
     Store the original filename, a POSIX relative path, a lower-case extension,
     and the file size in bytes. Raise ValueError for unsupported files or paths
     outside root.
-    TODO: implement this function.
     """
-    raise NotImplementedError("TODO: implement describe_document")
+    if not is_supported_document(path):
+        raise ValueError(f"{path} is not a supported document")
+    try:
+        relative = path.resolve().relative_to(root.resolve())
+    except ValueError as error:
+        raise ValueError(f"{path} is outside {root}") from error
+    return DocumentInfo(
+        name=path.name,
+        relative_path=relative.as_posix(),
+        extension=path.suffix.lower(),
+        size_bytes=path.stat().st_size,
+    )
 
 
 def build_manifest(root: Path) -> list[DocumentInfo]:
