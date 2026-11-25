@@ -20,6 +20,13 @@ build/
 .coverage
 htmlcov/
 
+# Local document corpus and generated database files
+/data/*
+!/data/.gitkeep
+*.sqlite
+*.sqlite3
+*.db
+
 # Editors / OS
 .idea/
 .vscode/

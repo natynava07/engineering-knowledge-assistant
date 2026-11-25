@@ -1,67 +1,105 @@
-# Engineering Knowledge Assistant — Class 1 starter
+# Engineering Knowledge Assistant — Class 2 starter
 
-This is the **Class 1 homework repository** and the first building block of the course. In this assignment, you
-implement a small, testable document catalogue. The RAG functionality is introduced in Class 3; do not implement AI
-features here.
+This is the Class 2 snapshot of the same project introduced in Class 1. Its package layout follows the course
+architecture: **API routes**, **business services**, and **SQL repositories** are separate, with unit and integration
+tests in their own folders.
 
-## Goal
+## Starter policy: no homework solutions
 
-Complete `src/engineering_knowledge_assistant/catalog.py` so it scans a directory and creates a deterministic manifest
-of supported documents (`.pdf`, `.txt`, `.md`). The acceptance tests are provided; the four implementation functions
-contain TODOs.
+The Class 1 catalogue functions are carried forward to
+`src/engineering_assistant/services/catalog.py`, but all four functions still raise `NotImplementedError`. The code has
+been moved from the Class 1 package name into the `services/` layer shown in the Class 2 architecture. Its original
+acceptance-test cases are retained in `tests/unit/test_catalog.py`; only the import path changes to match the new
+package name and service layer.
 
-## Requirements
+All Class 2 business functions are also TODOs. The public starter does not contain Class 1 or Class 2 homework
+implementations. If you completed Class 1, carry your own implementation forward from your personal repository.
 
-- Linux, macOS, or Windows with Ubuntu on WSL2
+## Project structure
+
+```text
+engineering-knowledge-assistant/
+├── src/
+│   └── engineering_assistant/
+│       ├── api/                 # FastAPI routes and response schemas
+│       ├── services/            # business rules and processing workflow
+│       │   ├── catalog.py       # Class 1 TODOs
+│       │   ├── extraction.py    # Class 2 TODO
+│       │   ├── chunking.py      # Class 2 TODO
+│       │   └── ingestion.py     # Class 2 TODO
+│       ├── repositories/        # SQL access
+│       │   └── documents.py     # SQLite TODOs
+│       └── main.py              # FastAPI application entry point
+├── tests/
+│   ├── unit/
+│   └── integration/
+├── data/                       # local documents and DB; gitignored
+├── pyproject.toml
+├── uv.lock
+├── Makefile
+└── README.md
+```
+
+## Requirements and setup
+
 - Python >= 3.12
 - Git, GNU Make and [uv](https://docs.astral.sh/uv/)
-- IDE configured to use the project's `.venv` interpreter
+- Linux, macOS or Windows with Ubuntu on WSL2
+- PyCharm or another IDE configured to use `.venv`
 
-## Setup
-
-Once you have cloned the repository, head over to the *engineering-knowledge-assistant* directory and from there run:
+From this directory:
 
 ```bash
 make install-test
 ```
 
-`make install-test` runs the Makefile's `uv sync` steps: it installs the default development tools and the test
-dependency group and creates `.venv/`.
+`uv sync` installs runtime and development dependencies from `pyproject.toml`
+and `uv.lock`; the test group is installed by `make install-test`.
 
-## Course Makefile
+## Layer responsibilities
 
-The supplied Makefile is intentionally retained as the team's command interface:
+- `api/`: HTTP routes, request validation and response schemas. Route handlers should stay thin and translate HTTP
+  concerns only.
+- `services/`: application/business rules, including catalogue operations, extraction, chunking and ingestion
+  orchestration.
+- `repositories/`: SQLite connections, schema and parameterized SQL queries.
+- `main.py`: creates and configures the FastAPI application.
+- `tests/unit/`: test individual functions and repository behavior in isolation.
+- `tests/integration/`: test API contracts and multi-layer workflows.
+- `data/`: local corpus and SQLite database. Do not commit its contents.
+
+## Class 2 implementation tasks
+
+1. Complete the four Class 1 catalogue functions in `services/catalog.py`.
+2. Implement PDF, TXT and Markdown extraction in `services/extraction.py`.
+3. Implement deterministic overlapping text chunks in `services/chunking.py`.
+4. Implement the SQLite schema and document/chunk queries in
+   `repositories/documents.py`.
+5. Compose those layers in `services/ingestion.py`.
+6. Complete the routes in `api/routes.py` and use Pydantic response models from
+   `api/schemas.py`.
+7. Add unit and integration tests for edge cases.
+
+The complete requirements and acceptance criteria are in
+[`../homework.md`](../homework.md).
+
+## Run, test and inspect the API
 
 ```bash
-make install-test  # install default + test dependency groups
-make lint          # Ruff + mypy
-make format        # Ruff formatting + import sorting
-make test          # pytest with coverage
-make clean         # remove local caches and coverage output
+make lint
+make test
+uv run uvicorn engineering_assistant.main:app --reload
 ```
 
-`make lint` should pass on the starter. The tests are expected to fail until you implement the TODO functions.
+Open `http://127.0.0.1:8000/docs` for Swagger UI and the generated OpenAPI documentation. The health route is available
+at `GET /health`.
 
-## Your tasks
-
-Implement the four TODOs in `src/engineering_knowledge_assistant/catalog.py`:
-
-1. `is_supported_document`: accept regular files with `.pdf`, `.txt`, `.md` extensions, case-insensitively.
-2. `discover_documents`: recursively find supported files, sorted by relative POSIX path. Return `[]` when the root does
-   not exist; raise `NotADirectoryError` if it exists but is not a directory.
-3. `describe_document`: return a `DocumentInfo` with the original filename, relative POSIX path, lower-case extension
-   and file size. Raise `ValueError` for unsupported files or paths outside the root.
-4. `build_manifest`: compose the previous functions; do not duplicate their logic.
-
-Read the tests before coding. They define the expected behavior. Do not weaken or edit the provided tests to make them
-pass. Add at least two extra tests for edge cases of your choice.
-
-## Suggested workflow
+## Development workflow
 
 ```bash
-git checkout -b feat/document-catalog
+git checkout -b feat/document-api
 make lint
-make test  # expected to fail until TODOs are implemented. Implement one function at a time
+make test  # acceptance tests fail until the TODOs are implemented
 make format
 make lint
 make test
@@ -69,53 +107,5 @@ uv run pre-commit install
 uv run pre-commit run --all-files
 ```
 
-Use small Conventional Commits, for example:
-
-```text
-feat(catalog): detect supported document types
-feat(catalog): discover documents recursively
-feat(catalog): build document manifest
-test(catalog): cover additional path edge cases
-```
-
-Push your feature branch to GitHub using the repository's HTTPS remote and open a pull request. Do not commit `.venv/`,
-secrets, IDE caches or local data.
-
-## Acceptance criteria
-
-- [ ] All provided tests pass.
-- [ ] `make lint` passes.
-- [ ] `make format` produces no further changes on a second run.
-- [ ] At least two additional tests are included.
-- [ ] At least three meaningful Conventional Commits are present.
-- [ ] A feature branch is pushed and a pull request is opened.
-- [ ] README explains setup, commands and the behavior implemented.
-
-## Questions for the pull request
-
-1. Why is `uv.lock` committed while `.venv/` is ignored?
-2. What is the difference between Ruff and mypy?
-3. What do the local hooks check, and why will we still need CI later?
-4. Which edge cases did your additional tests cover?
-
-Submit the pull request URL and a short note about one bug or edge case you encountered.
-
-## Implemented behaviour
-
-- `is_supported_document(path)`: returns `True` only for regular files whose extension
-  is `.pdf`, `.txt` or `.md` (case-insensitive). Directories are never documents.
-- `discover_documents(root)`: walks `root` recursively and returns the supported files
-  sorted by relative POSIX path. Returns `[]` if `root` does not exist and raises
-  `NotADirectoryError` if `root` is a file.
-- `describe_document(path, root)`: returns a `DocumentInfo` with the original name, the
-  relative POSIX path, the lower-case extension and the size in bytes. Raises
-  `ValueError` for unsupported files or files outside `root`.
-- `build_manifest(root)`: combines the two functions above.
-
-Run it on a folder with `uv run python -m engineering_knowledge_assistant <folder>`.
-
-### Extra tests
-
-- A file without an extension is not supported.
-- A directory named like a document (`notes.md/`) is skipped during discovery.
-- The manifest of an empty directory is an empty list.
+Do not weaken or delete acceptance tests to obtain a green build. Keep
+`.venv/`, secrets, IDE files, local documents and SQLite databases out of Git.

@@ -1,11 +1,11 @@
-"""Command-line entry point for the document catalog."""
+"""Class 1 command-line catalogue entry point, retained in the new package."""
 
 import argparse
 import json
 from dataclasses import asdict
 from pathlib import Path
 
-from engineering_knowledge_assistant.catalog import build_manifest
+from engineering_assistant.services.catalog import build_manifest
 
 
 def main() -> None:
