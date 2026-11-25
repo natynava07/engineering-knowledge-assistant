@@ -99,3 +99,23 @@ secrets, IDE caches or local data.
 4. Which edge cases did your additional tests cover?
 
 Submit the pull request URL and a short note about one bug or edge case you encountered.
+
+## Implemented behaviour
+
+- `is_supported_document(path)`: returns `True` only for regular files whose extension
+  is `.pdf`, `.txt` or `.md` (case-insensitive). Directories are never documents.
+- `discover_documents(root)`: walks `root` recursively and returns the supported files
+  sorted by relative POSIX path. Returns `[]` if `root` does not exist and raises
+  `NotADirectoryError` if `root` is a file.
+- `describe_document(path, root)`: returns a `DocumentInfo` with the original name, the
+  relative POSIX path, the lower-case extension and the size in bytes. Raises
+  `ValueError` for unsupported files or files outside `root`.
+- `build_manifest(root)`: combines the two functions above.
+
+Run it on a folder with `uv run python -m engineering_knowledge_assistant <folder>`.
+
+### Extra tests
+
+- A file without an extension is not supported.
+- A directory named like a document (`notes.md/`) is skipped during discovery.
+- The manifest of an empty directory is an empty list.

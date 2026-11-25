@@ -99,3 +99,19 @@ def test_build_manifest_composes_discovery_and_description(tmp_path: Path) -> No
 
     assert [item.relative_path for item in manifest] == ["a.md", "b.txt"]
     assert [item.size_bytes for item in manifest] == [6, 5]
+
+
+def test_file_without_extension_is_not_supported(tmp_path: Path) -> None:
+    document = tmp_path / "README"
+    document.write_text("no extension", encoding="utf-8")
+    assert is_supported_document(document) is False
+
+
+def test_directory_with_supported_suffix_is_skipped(tmp_path: Path) -> None:
+    (tmp_path / "notes.md").mkdir()
+    (tmp_path / "real.md").write_text("real", encoding="utf-8")
+    assert [path.name for path in discover_documents(tmp_path)] == ["real.md"]
+
+
+def test_build_manifest_of_empty_directory_is_empty(tmp_path: Path) -> None:
+    assert build_manifest(tmp_path) == []
