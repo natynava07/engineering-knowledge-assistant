@@ -24,9 +24,8 @@ def is_supported_document(path: Path) -> bool:
     """Return True when path is a regular file with a supported extension.
 
     Extension matching must be case-insensitive. Directories are not documents.
-    TODO: implement this function.
     """
-    raise NotImplementedError("TODO: implement is_supported_document")
+    return path.is_file() and path.suffix.lower() in SUPPORTED_EXTENSIONS
 
 
 def discover_documents(root: Path) -> list[Path]:
